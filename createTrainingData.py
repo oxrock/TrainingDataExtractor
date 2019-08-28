@@ -20,22 +20,22 @@ def convert_replay_to_game_frames(inputName,JSONpath,save_json = True):
     return result
 
 def duplicateFrameCheck(frame1,frame2):
-    if frame1["GameState"]["ball"]["position"] != frame2["GameState"]["ball"]["position"]:
-        return False
-    if frame1["GameState"]["ball"]["velocity"] != frame2["GameState"]["ball"]["velocity"]:
-        return False
-    if frame1["GameState"]["ball"]["rotation"] != frame2["GameState"]["ball"]["rotation"]:
-        return False
+    if frame1["GameState"]["ball"]["position"] == frame2["GameState"]["ball"]["position"]:
+        return True
+    if frame1["GameState"]["ball"]["velocity"] == frame2["GameState"]["ball"]["velocity"]:
+        return True
+    if frame1["GameState"]["ball"]["rotation"] == frame2["GameState"]["ball"]["rotation"]:
+        return True
     for i in range(len(frame1["PlayerData"])):
-        if frame1["PlayerData"][i]["position"] != frame2["PlayerData"][i]["position"]:
-            return False
-        if frame1["PlayerData"][i]["velocity"] != frame2["PlayerData"][i]["velocity"]:
-            return False
-        if frame1["PlayerData"][i]["angular_velocity"] != frame2["PlayerData"][i]["angular_velocity"]:
-            return False
-        if frame1["PlayerData"][i]["rotation"] != frame2["PlayerData"][i]["rotation"]:
-            return False
-    return True
+        if frame1["PlayerData"][i]["position"] == frame2["PlayerData"][i]["position"]:
+            return True
+        if frame1["PlayerData"][i]["velocity"] == frame2["PlayerData"][i]["velocity"]:
+            return True
+        if frame1["PlayerData"][i]["angular_velocity"] == frame2["PlayerData"][i]["angular_velocity"]:
+            return True
+        if frame1["PlayerData"][i]["rotation"] == frame2["PlayerData"][i]["rotation"]:
+            return True
+    return False
 
 def velocity_scaler(vel):
     if vel != 0:
