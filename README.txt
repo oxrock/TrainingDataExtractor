@@ -45,35 +45,17 @@ frame{
 
 Example of how you'd load replays, convert them to the above packet format and save them. Example stops at 5 but you could continue for however many replays you have available:
 
+from  TrainingDataExtractor.createTrainingData import *
 import os
-import pickle
-import bz2
-import createTrainingData
-import sys
 
-rawPath = "testReplays" #path to your raw replays folder
-files = os.listdir(rawPath)
-
+path = "rl_replays"
+files = os.listdir(path)
 for i in range(5):
     try:
-        _path = "{}/{}".format(rawPath, files[i])
+        _path = "{}/{}".format(path, files[i])
         output = f"myReplayType/{files[i]}.pbz2"
         createDataFromReplay(_path,output,"temp.json", save_json= True)
     except Exception as e:
         print("===== FAILURE ======")
         print(e, "\n"+_path)
         print("====================")
-
-
-
-convertedPath = "converted_replays" #path to folder with your converted replays
-files = os.listdir(convertedPath)
-
-
-for i in range(5):
-    try:
-        createAndSaveReplayTrainingDataFromJSON(f"{convertedPath}/{files[i]}", outputFileName = f"myReplayType/{files[i]}.pbz2")
-    except Exception as e:
-        print(f"Failed converting{files[i]} to rlbot gamedata")
-        print(e)
-
