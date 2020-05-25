@@ -25,7 +25,7 @@ frame{
     		"name" : player's name
 		"team" : team index 0 for blue, 1 for orange
 		"position" : current location of the player as a list [x,y,z]
-    		"rotation" : current rotation of the player as a list [x,y,z]
+    		"rotation" : current rotation of the player as a list [x,y,z] (x - pitch, y - yaw, z - roll)
     		"velocity" : current velocity of the player as a list [x,y,z]
     		"angular_velocity" : current angular velocity of the player as a list [x,y,z]
 		"boost_level" : player's current boost amount
