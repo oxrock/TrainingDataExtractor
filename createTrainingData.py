@@ -10,14 +10,23 @@ import bz2
 import sys
 
 def convert_replay_to_game_frames(inputName,JSONpath,save_json = True):
-    manager = carball.analyze_replay_file(inputName,
-                                          output_path=JSONpath,
-                                          overwrite=True)
+    _json = carball.decompile_replay(inputName)
+
+    game = Game()
+    game.initialize(loaded_json=_json)
+
+    analysis_manager = AnalysisManager(game)
+    analysis_manager.create_analysis()
+
+    json_object = analysis_manager.get_json_data()
+    with open(JSONpath, 'w+') as j_file:
+        json.dump(json_object,j_file)
 
     result = convert_json_to_game_frames(JSONpath)
     if not save_json:
         os.remove(JSONpath)
     return result
+    #return None
 
 def duplicateFrameCheck(frame1,frame2):
     if frame1["GameState"]["ball"]["position"] != frame2["GameState"]["ball"]["position"]:
@@ -47,6 +56,53 @@ def angular_vecloty_scaler(a_vel):
         a_vel = a_vel/1000
     return a_vel
 
+def creating_data(replay_location="",json_path=""):
+    _json = carball.decompile_replay(replay_location)
+
+    game = Game()
+    game.initialize(loaded_json=_json)
+
+    analysis_manager = AnalysisManager(game)
+    analysis_manager.create_analysis()
+
+    json_object = analysis_manager.get_json_data()
+
+    x = ControlsCreator()
+    x.get_controls(game)
+    frames = []
+    total = 0
+    duplicates = 0
+    previous_frame = None
+    for col, row in analysis_manager.data_frame.iterrows():
+        frame = {}
+        frame["GameState"] = {}
+        frame["GameState"]["time"] = NaN_fixer(row["game"]["time"])
+        frame["GameState"]["seconds_remaining"] = NaN_fixer(row["game"]["seconds_remaining"])
+        frame["GameState"]["deltatime"] = NaN_fixer(row["game"]["delta"])
+        frame["GameState"]["ball"] = {}
+        frame["GameState"]["ball"]["position"] = [NaN_fixer(row["ball"]["pos_x"]), NaN_fixer(row["ball"]["pos_y"]),
+                                                  NaN_fixer(row["ball"]["pos_z"])]
+        frame["GameState"]["ball"]["velocity"] = [velocity_scaler(NaN_fixer(row["ball"]["vel_x"])),
+                                                  velocity_scaler(NaN_fixer(row["ball"]["vel_y"])),
+                                                  velocity_scaler(NaN_fixer(row["ball"]["vel_z"]))]
+        frame["GameState"]["ball"]["rotation"] = [NaN_fixer(row["ball"]["rot_x"]), NaN_fixer(row["ball"]["rot_y"]),
+                                                  NaN_fixer(row["ball"]["rot_z"])]
+        frame["PlayerData"] = []
+        for i in range(len(game.players)):
+            frame["PlayerData"].append(getPlayerFrame(game.players[i], i, col, row))
+
+        if previous_frame != None:
+            if duplicateFrameCheck(frame, previous_frame):
+                total += 1
+                duplicates += 1
+                continue
+
+        previous_frame = frame
+        frames.append(frame)
+        total += 1
+
+    return frames
+
 def convert_json_to_game_frames(filename):
     with open(filename,encoding='utf-8', errors='ignore') as json_file:
         _json = json.load(json_file)
@@ -56,6 +112,8 @@ def convert_json_to_game_frames(filename):
 
     analysis = AnalysisManager(game)
     analysis.create_analysis()
+
+
 
     x = ControlsCreator()
     x.get_controls(game)
